@@ -1,0 +1,59 @@
+# Import necessary libraries
+import tensorflow as tf
+from pyspark.sql import SparkSession
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.linalg import Vectors
+from pyspark.sql.functions import col
+from tensorflowonspark import TFCluster
+from tensorflowonspark import TFNode
+
+# Create a Spark session
+spark = SparkSession.builder.master("local").appName("TensorFlowOnSparkExample").getOrCreate()
+
+# Generate some sample data
+data = [(1.0, Vectors.dense([1.0])),
+        (2.0, Vectors.dense([2.0])),
+        (3.0, Vectors.dense([3.0])),
+        (4.0, Vectors.dense([4.0])),
+        (5.0, Vectors.dense([5.0]))]
+
+columns = ["label", "features"]
+df = spark.createDataFrame(data, columns)
+
+# Define the TensorFlow model
+def linear_regression_model(features):
+    return tf.keras.Sequential([
+        tf.keras.layers.Dense(1, input_shape=(features,), activation='linear')
+    ])
+
+# Function to train the TensorFlow model
+def train_fn(ctx):
+    model = linear_regression_model(features=1)
+    optimizer = tf.optimizers.SGD(learning_rate=0.01)
+    loss_fn = 'mean_squared_error'
+
+    if ctx.job_name == 'ps':
+        server = TFNode.start_cluster_server(ctx)
+        server.join()
+    elif ctx.job_name == 'worker':
+        cluster, server = TFNode.start_cluster_server(ctx)
+        model.compile(optimizer, loss=loss_fn, metrics=['mse'])
+
+        train_data = TFNode.DataFeed(ctx.mgr, df)
+        num_batches = len(train_data)
+        
+        for epoch in range(10):  # 10 training epochs
+            for batch in range(num_batches):
+                features, labels = train_data.next_batch(1)  # Adjust batch size as needed
+                model.train_on_batch(features, labels)
+
+        model.save('/path/to/save/model')  # Save the trained model
+
+# Configure TensorFlowOnSpark cluster
+cluster = TFCluster.run(spark.sparkContext, train_fn, args=None, num_executors=2, num_ps=1)
+
+# Stop the TensorFlowOnSpark cluster
+cluster.shutdown()
+
+# Stop the Spark session
+spark.stop()
