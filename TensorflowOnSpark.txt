@@ -1,0 +1,42 @@
+TensorFlowOnSpark (TFoS) allows TensorFlow to run on Apache Spark clusters, enabling the distribution of TensorFlow computations across multiple Spark executors. The key components and workflow of TensorFlowOnSpark are as follows:
+
+    Cluster Setup:
+        The Spark cluster is set up with a master node (driver) and multiple worker nodes (executors).
+        Each Spark executor is a potential TensorFlow worker.
+
+    TensorFlow Cluster Setup:
+        TensorFlow workers and parameter servers are launched on Spark executors using the TensorFlow cluster specification.
+        The TensorFlow cluster consists of both worker tasks (executors) and parameter server tasks.
+
+    Data Distribution:
+        Input data is distributed across the Spark RDDs or DataFrames, and TensorFlowOnSpark provides utility functions to handle the distribution of data to TensorFlow workers.
+
+    Model Training:
+        TensorFlow models are defined using the tf.estimator API or Keras API, making them compatible with distributed training.
+        The TensorFlow model is distributed across Spark executors, allowing each executor to process a portion of the data.
+
+    Communication:
+        TensorFlowOnSpark handles the communication between Spark and TensorFlow clusters. It provides mechanisms for Spark executors to communicate with TensorFlow workers and parameter servers.
+
+    Batch Processing:
+        TensorFlow models process data in batches, and Spark helps in efficiently managing and processing these batches across the distributed environment.
+
+    Synchronization:
+        TensorFlow workers synchronize their parameters through the parameter servers to ensure consistency during distributed training.
+
+    Fault Tolerance:
+        TensorFlowOnSpark provides fault tolerance mechanisms. In case of failures, TensorFlow workers can be restarted on other Spark executors, and training can resume from the last checkpoint.
+
+    Checkpointing:
+        TensorFlow models are configured to save checkpoints during training. These checkpoints are used to recover the model state in case of failures or for resuming training.
+
+    Data Input Pipelines:
+        TensorFlowOnSpark integrates with Spark's data processing capabilities, allowing seamless integration of data input pipelines from Spark RDDs or DataFrames into TensorFlow.
+
+    Monitoring:
+        TensorFlow's monitoring tools, such as TensorBoard, can be used to monitor the training process. TensorBoard can visualize metrics from all TensorFlow workers, providing insights into the distributed training.
+
+    Model Saving:
+        After training, the TensorFlow model can be saved and used for inference. TFoS ensures that the model is correctly saved and can be loaded for future use.
+
+Overall, TensorFlowOnSpark bridges the gap between TensorFlow and Spark, allowing users to leverage the distributed computing capabilities of Spark for training TensorFlow models on large-scale datasets. It provides a seamless integration that enables efficient distributed deep learning on Spark clusters.
