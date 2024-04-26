@@ -1,5 +1,5 @@
 ***
-
+# Section 1
 For the task of embedding H3 hexagons, both Doc2Vec and Word2Vec can be adapted. Here's a comparison of both approaches:
 
 Word2Vec:
@@ -19,7 +19,7 @@ In the case of H3 hexagons, where each hexagon can be considered as a standalone
 Ultimately, the choice between Word2Vec and Doc2Vec depends on the specific characteristics of your dataset and the type of information you want to capture in the embeddings. It's a good idea to experiment with both approaches and evaluate their performance based on your task requirements.
 
 ***
-> ---
+# Section 2
 
 To adapt Word2Vec for embedding H3 hexagons, we can treat each hexagon as a "word" and create a corpus of hexagon sequences. We'll use the Gensim library for Word2Vec implementation. Here's an example:
     
@@ -50,7 +50,10 @@ In this code:
 - Finally, we obtain the embeddings for each hexagon from the trained Word2Vec model.
 
 This approach adapts Word2Vec to the task of embedding H3 hexagons by treating them as discrete units of information. However, it's important to note that Word2Vec may not fully capture the spatial relationships or semantics inherent in H3 hexagons as well as techniques specifically designed for geographical data.
-> ---
+
+
+***
+# Section 3
 
 
 
@@ -89,4 +92,3 @@ In this code:
 Note that the quality of the embeddings might vary depending on factors such as the size of the dataset and the similarity of the hexagons.
 You may need to experiment with the hyperparameters of the Doc2Vec model for optimal results. Additionally, keep in mind that Doc2Vec is designed for text data and may not capture the spatial relationships inherent in H3 hexagons as well as other methods specifically tailored for geographical data.
 
-> ---
