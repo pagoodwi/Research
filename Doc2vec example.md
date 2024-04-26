@@ -94,10 +94,13 @@ You may need to experiment with the hyperparameters of the Doc2Vec model for opt
 
 ***
 # Section 4
+
+An example of how you can use a transformer architecture, specifically the Transformer model introduced in the paper "Attention is All You Need" by Vaswani et al., for embedding a sequence of Uber H3 hexagons:
+
+```python
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-```python
 class HexagonTransformer(tf.keras.Model):
     def __init__(self, num_layers, d_model, num_heads, dff, input_vocab_size, maximum_position_encoding, rate=0.1):
         super(HexagonTransformer, self).__init__()
