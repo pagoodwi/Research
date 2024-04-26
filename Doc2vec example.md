@@ -92,3 +92,72 @@ In this code:
 Note that the quality of the embeddings might vary depending on factors such as the size of the dataset and the similarity of the hexagons.
 You may need to experiment with the hyperparameters of the Doc2Vec model for optimal results. Additionally, keep in mind that Doc2Vec is designed for text data and may not capture the spatial relationships inherent in H3 hexagons as well as other methods specifically tailored for geographical data.
 
+***
+# Section 4
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+```python
+class HexagonTransformer(tf.keras.Model):
+    def __init__(self, num_layers, d_model, num_heads, dff, input_vocab_size, maximum_position_encoding, rate=0.1):
+        super(HexagonTransformer, self).__init__()
+
+        self.d_model = d_model
+        self.num_layers = num_layers
+
+        self.embedding = layers.Embedding(input_vocab_size, d_model)
+        self.pos_encoding = self.positional_encoding(maximum_position_encoding, d_model)
+
+        self.enc_layers = [self.encoder_layer(d_model, num_heads, dff, rate) 
+                           for _ in range(num_layers)]
+
+        self.dropout = layers.Dropout(rate)
+
+    def call(self, x, training, mask=None):
+        seq_len = tf.shape(x)[1]
+
+        # adding embedding and position encoding.
+        x = self.embedding(x)  # (batch_size, input_seq_len, d_model)
+        x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+        x += self.pos_encoding[:, :seq_len, :]
+
+        x = self.dropout(x, training=training)
+
+        for i in range(self.num_layers):
+            x = self.enc_layers[i](x, training, mask)
+
+        return x  # (batch_size, input_seq_len, d_model)
+
+    def positional_encoding(self, position, d_model):
+        angle_rads = self.get_angles(
+            tf.range(position, dtype=tf.float32)[:, tf.newaxis],
+            tf.range(d_model, dtype=tf.float32)[tf.newaxis, :],
+            d_model)
+
+        # apply sin to even indices in the array; 2i
+        sines = tf.math.sin(angle_rads[:, 0::2])
+
+        # apply cos to odd indices in the array; 2i+1
+        cosines = tf.math.cos(angle_rads[:, 1::2])
+
+        pos_encoding = tf.concat([sines, cosines], axis=-1)
+        pos_encoding = pos_encoding[tf.newaxis, ...]
+        return tf.cast(pos_encoding, tf.float32)
+
+    def get_angles(self, pos, i, d_model):
+        angle_rates = 1 / tf.pow(10000, (2 * (i // 2)) / tf.cast(d_model, tf.float32))
+        return pos * angle_rates
+
+    def encoder_layer(self, d_model, num_heads, dff, rate=0.1):
+        return tf.keras.Sequential([
+            layers.MultiHeadAttention(num_heads=num_heads, key_dim=d_model),
+            layers.Dropout(rate),
+            layers.LayerNormalization(epsilon=1e-6),
+            layers.Dense(dff, activation='relu'),
+            layers.Dropout(rate),
+            layers.Dense(d_model),
+            layers.Dropout(rate),
+            layers.LayerNormalization(epsilon=1e-6)
+        ])
+```
+***
