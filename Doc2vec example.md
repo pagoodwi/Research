@@ -1,3 +1,5 @@
+
+
 For the task of embedding H3 hexagons, both Doc2Vec and Word2Vec can be adapted. Here's a comparison of both approaches:
 
 Word2Vec:
@@ -47,41 +49,43 @@ In this code:
 - Finally, we obtain the embeddings for each hexagon from the trained Word2Vec model.
 
 This approach adapts Word2Vec to the task of embedding H3 hexagons by treating them as discrete units of information. However, it's important to note that Word2Vec may not fully capture the spatial relationships or semantics inherent in H3 hexagons as well as techniques specifically designed for geographical data.
+> ---
 
 
 
+Using Word2Vec or Doc2Vec directly for H3 hexagons might not be ideal, as these algorithms are designed for natural language processing tasks and require sequences of tokens as input. However, we can adapt the concept by treating each hexagon as a "word" and embedding it into a continuous vector space.
 
-    Using Word2Vec or Doc2Vec directly for H3 hexagons might not be ideal, as these algorithms are designed for natural language processing tasks and require sequences of tokens as input. However, we can adapt the concept by treating each hexagon as a "word" and embedding it into a continuous vector space.
-    
-    Here's how you could use Doc2Vec from the Gensim library to embed H3 hexagons:
-    
-    ```python
-    from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-    
-    # List of H3 hexagons
-    hexagons = ["88283082bffffff", "882830828ffffff", "88283082affffff"]
-    
-    # Tag the hexagons with unique identifiers
-    tagged_data = [TaggedDocument(words=[hexagon], tags=[str(i)]) for i, hexagon in enumerate(hexagons)]
-    
-    # Train Doc2Vec model
-    model = Doc2Vec(vector_size=100, min_count=1, epochs=10)
-    model.build_vocab(tagged_data)
-    model.train(tagged_data, total_examples=model.corpus_count, epochs=model.epochs)
-    
-    # Get the embeddings for the hexagons
-    embeddings = [model.infer_vector([hexagon]) for hexagon in hexagons]
-    
-    print("Embeddings:")
-    for hexagon, embedding in zip(hexagons, embeddings):
-        print(hexagon, ":", embedding)
-    ```
-    
-    In this code:
-    
-    - Each H3 hexagon is treated as a "document" with a unique identifier.
-    - We train a Doc2Vec model on the tagged hexagons.
-    - Finally, we infer the embedding for each hexagon using the trained model.
-    
-    Note that the quality of the embeddings might vary depending on factors such as the size of the dataset and the similarity of the hexagons.
-    You may need to experiment with the hyperparameters of the Doc2Vec model for optimal results. Additionally, keep in mind that Doc2Vec is designed for text data and may not capture the spatial relationships inherent in H3 hexagons as well as other methods specifically tailored for geographical data.
+Here's how you could use Doc2Vec from the Gensim library to embed H3 hexagons:
+
+```python
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+
+# List of H3 hexagons
+hexagons = ["88283082bffffff", "882830828ffffff", "88283082affffff"]
+
+# Tag the hexagons with unique identifiers
+tagged_data = [TaggedDocument(words=[hexagon], tags=[str(i)]) for i, hexagon in enumerate(hexagons)]
+
+# Train Doc2Vec model
+model = Doc2Vec(vector_size=100, min_count=1, epochs=10)
+model.build_vocab(tagged_data)
+model.train(tagged_data, total_examples=model.corpus_count, epochs=model.epochs)
+
+# Get the embeddings for the hexagons
+embeddings = [model.infer_vector([hexagon]) for hexagon in hexagons]
+
+print("Embeddings:")
+for hexagon, embedding in zip(hexagons, embeddings):
+    print(hexagon, ":", embedding)
+```
+
+In this code:
+
+- Each H3 hexagon is treated as a "document" with a unique identifier.
+- We train a Doc2Vec model on the tagged hexagons.
+- Finally, we infer the embedding for each hexagon using the trained model.
+
+Note that the quality of the embeddings might vary depending on factors such as the size of the dataset and the similarity of the hexagons.
+You may need to experiment with the hyperparameters of the Doc2Vec model for optimal results. Additionally, keep in mind that Doc2Vec is designed for text data and may not capture the spatial relationships inherent in H3 hexagons as well as other methods specifically tailored for geographical data.
+
+> ---
