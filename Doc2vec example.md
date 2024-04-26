@@ -16,37 +16,37 @@ In the case of H3 hexagons, where each hexagon can be considered as a standalone
 
 Ultimately, the choice between Word2Vec and Doc2Vec depends on the specific characteristics of your dataset and the type of information you want to capture in the embeddings. It's a good idea to experiment with both approaches and evaluate their performance based on your task requirements.
 
+> ---
 
+To adapt Word2Vec for embedding H3 hexagons, we can treat each hexagon as a "word" and create a corpus of hexagon sequences. We'll use the Gensim library for Word2Vec implementation. Here's an example:
+    
+```python
+from gensim.models import Word2Vec
 
-    To adapt Word2Vec for embedding H3 hexagons, we can treat each hexagon as a "word" and create a corpus of hexagon sequences. We'll use the Gensim library for Word2Vec implementation. Here's an example:
+# List of H3 hexagons
+hexagons = ["88283082bffffff", "882830828ffffff", "88283082affffff"]
+
+# Split hexagons into lists of characters (treat each hexagon as a "word")
+hexagon_sequences = [[char for char in hexagon] for hexagon in hexagons]
+
+# Train Word2Vec model
+model = Word2Vec(sentences=hexagon_sequences, vector_size=100, window=5, min_count=1, workers=4)
+
+# Get the embeddings for the hexagons
+embeddings = {hexagon: model.wv[hexagon] for hexagon in hexagons}
+
+print("Embeddings:")
+for hexagon, embedding in embeddings.items():
+    print(hexagon, ":", embedding)
+```
     
-    ```python
-    from gensim.models import Word2Vec
-    
-    # List of H3 hexagons
-    hexagons = ["88283082bffffff", "882830828ffffff", "88283082affffff"]
-    
-    # Split hexagons into lists of characters (treat each hexagon as a "word")
-    hexagon_sequences = [[char for char in hexagon] for hexagon in hexagons]
-    
-    # Train Word2Vec model
-    model = Word2Vec(sentences=hexagon_sequences, vector_size=100, window=5, min_count=1, workers=4)
-    
-    # Get the embeddings for the hexagons
-    embeddings = {hexagon: model.wv[hexagon] for hexagon in hexagons}
-    
-    print("Embeddings:")
-    for hexagon, embedding in embeddings.items():
-        print(hexagon, ":", embedding)
-    ```
-    
-    In this code:
-    
-    - We split each H3 hexagon into a list of characters, treating each hexagon as a "word".
-    - We train a Word2Vec model on the hexagon sequences.
-    - Finally, we obtain the embeddings for each hexagon from the trained Word2Vec model.
-    
-    This approach adapts Word2Vec to the task of embedding H3 hexagons by treating them as discrete units of information. However, it's important to note that Word2Vec may not fully capture the spatial relationships or semantics inherent in H3 hexagons as well as techniques specifically designed for geographical data.
+In this code:
+
+- We split each H3 hexagon into a list of characters, treating each hexagon as a "word".
+- We train a Word2Vec model on the hexagon sequences.
+- Finally, we obtain the embeddings for each hexagon from the trained Word2Vec model.
+
+This approach adapts Word2Vec to the task of embedding H3 hexagons by treating them as discrete units of information. However, it's important to note that Word2Vec may not fully capture the spatial relationships or semantics inherent in H3 hexagons as well as techniques specifically designed for geographical data.
 
 
 
