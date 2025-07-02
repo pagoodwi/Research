@@ -1,3 +1,19 @@
+############################################################
+# CONFIG
+
+spark-submit \
+  --num-executors 8 \
+  --executor-cores 12 \
+  --executor-memory 11g \
+  --conf spark.yarn.executor.memoryOverhead=2g \
+  --conf spark.default.parallelism=96 \
+  --conf spark.sql.shuffle.partitions=96 \
+
+
+
+##############################################################
+# LOGIC
+
 from pyspark.sql import SparkSession
 import gc
 
