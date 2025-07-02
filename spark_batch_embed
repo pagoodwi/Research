@@ -1,0 +1,66 @@
+from pyspark.sql import SparkSession
+import gc
+
+# ========== SPARK SESSION ==========
+spark = SparkSession.builder.getOrCreate()
+
+# ========== PARAMETERS ==========
+BATCH_SIZE = 100
+TEXT_COL = "text"  # Column to embed
+COLUMNS_TO_KEEP = ["id", "title", "source"]  # Columns to preserve alongside embedding
+S3_OUTPUT_PATH = "s3a://your-bucket/output/path"
+NUM_EXECUTORS = 20
+PARTITION_COUNT = NUM_EXECUTORS * 2
+
+# ========== BROADCAST MODEL ==========
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer("intfloat/multilingual-e5-small")
+broadcast_model = spark.sparkContext.broadcast(model)
+
+# ========== EMBEDDING FUNCTION ==========
+def embed_partition(rows):
+    model = broadcast_model.value
+    rows = list(rows)
+    batch_size = BATCH_SIZE
+    result = []
+
+    for i in range(0, len(rows), batch_size):
+        batch = rows[i:i + batch_size]
+        texts = [row[TEXT_COL] for row in batch]
+
+        try:
+            vectors = model.encode(texts)
+        except Exception as e:
+            print(f"Encoding failed at batch {i}: {e}")
+            continue
+
+        for row_data, vector in zip(batch, vectors):
+            row_dict = {k: row_data[k] for k in COLUMNS_TO_KEEP}
+            row_dict["vector"] = vector.tolist()
+            result.append(row_dict)
+
+        gc.collect()
+
+    return iter(result)
+
+# ========== EMBED + WRITE FUNCTION ==========
+def embed_and_write(df):
+    df = df.rdd.mapPartitions(embed_partition).toDF()
+    df.write.mode("append").parquet(S3_OUTPUT_PATH)
+
+
+
+
+############################################################################
+# USAGE:
+
+# Load your input DataFrame
+df = spark.read.parquet("s3a://your/input/path")
+
+# Optional: repartition + persist to optimize execution plan
+df = df.repartition(PARTITION_COUNT).persist()
+df.count()  # Triggers caching so Spark doesn't recompute this input
+
+# Run the embedding + S3 write pipeline
+embed_and_write(df)
+
