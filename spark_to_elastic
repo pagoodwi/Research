@@ -1,0 +1,65 @@
+######################################################################################################################################################
+# Add Jars
+org.elasticsearch:elasticsearch-spark-30_2.12:8.10.2
+
+# Requirements
+elasticsearch
+
+
+
+
+
+
+######################################################################################################################################################
+# Create index in elastic
+
+from elasticsearch import Elasticsearch
+
+es = Elasticsearch("http://your-es-host:9200")
+
+# Define index mapping
+index_name = "your_index"
+mapping = {
+    "mappings": {
+        "properties": {
+            "id": {"type": "keyword"},
+            "name": {"type": "text"},
+            "blob": {"type": "text"},
+            "geopoint": {"type": "geo_point"},
+            "vector": {"type": "dense_vector", "dims": 384}
+        }
+    }
+}
+
+if not es.indices.exists(index=index_name):
+    es.indices.create(index=index_name, body=mapping)
+    print(f"Index '{index_name}' created.")
+else:
+    print(f"Index '{index_name}' already exists. Skipping creation.")
+
+
+
+
+
+
+
+
+######################################################################################################################################################
+# Write from spark to Elastic
+
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("S3ToElastic") \
+    .getOrCreate()
+
+df = spark.read.parquet("s3a://your-bucket/output/path")
+
+df.write \
+    .format("org.elasticsearch.spark.sql") \
+    .option("es.nodes", "your-elastic-host:9200") \
+    .option("es.resource", "your_index/_doc") \
+    .option("es.mapping.id", "id") \
+    .option("es.nodes.wan.only", "true") \
+    .mode("append") \
+    .save()
