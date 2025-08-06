@@ -1,0 +1,2 @@
+server.host: "0.0.0.0"
+opensearch.hosts: ["https://node-1:9200","https://node-2:9200","https://node-3:9200"]
