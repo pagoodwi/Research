@@ -1,0 +1,98 @@
+cluster.name: opensearch-cluster
+node.name: node-1
+network.host: 0.0.0.0
+discovery.seed_hosts: ["node-1", "node-2", "node-3"]
+cluster.initial_cluster_manager_nodes: ["node-1", "node-2", "node-3"]
+node.roles: [ cluster_manager, data ]
+path.data: /mnt/pvc/opensearch/node1/data
+path.logs: /mnt/pvc/opensearch/node1/logs
+
+
+
+cluster.name: opensearch-cluster
+node.name: node-2
+network.host: 0.0.0.0
+discovery.seed_hosts: ["node-1", "node-2", "node-3"]
+cluster.initial_cluster_manager_nodes: ["node-1", "node-2", "node-3"]
+node.roles: [ cluster_manager, data ]
+path.data: /mnt/pvc/opensearch/node2/data
+path.logs: /mnt/pvc/opensearch/node2/logs
+
+
+
+cluster.name: opensearch-cluster
+node.name: node-3
+network.host: 0.0.0.0
+discovery.seed_hosts: ["node-1", "node-2", "node-3"]
+cluster.initial_cluster_manager_nodes: ["node-1", "node-2", "node-3"]
+node.roles: [ cluster_manager, data ]
+path.data: /mnt/pvc/opensearch/node3/data
+path.logs: /mnt/pvc/opensearch/node3/logs
+
+
+cluster.name: opensearch-cluster
+node.name: node-4
+network.host: 0.0.0.0
+discovery.seed_hosts: ["node-1", "node-2", "node-3"]
+cluster.initial_cluster_manager_nodes: ["node-1", "node-2", "node-3"]
+node.roles: [ data ]
+path.data: /mnt/pvc/opensearch/node4/data
+path.logs: /mnt/pvc/opensearch/node4/logs
+
+
+
+
+
+
+server.host: "0.0.0.0"
+opensearch.hosts: ["https://node-1:9200","https://node-2:9200","https://node-3:9200"]
+
+
+
+
+
+
+
+
+
+#!/bin/bash
+echo "Bootstrapping OpenSearch nodes..."
+
+for i in 1 2 3 4; do
+  echo "Setting up node$i"
+  mkdir -p node$i
+  tar -xzf opensearch-3.1.0-linux-x64.tar.gz -C node$i
+  cp OpenSearchNode$i.yaml node$i/opensearch-3.1.0/config/opensearch.yml
+done
+
+echo "Done. You can now start each node manually."
+
+
+
+
+
+
+
+
+
+
+
+# OpenSearch 3.1 Tarball Deployment
+
+## Overview
+- 3 cluster-manager nodes (with data): node-1, node-2, node-3
+- 1 data-only node: node-4
+- All use persistent volume paths like `/mnt/pvc/opensearch/nodeX/data`
+
+## Instructions
+
+1. Download OpenSearch 3.1.0 tarball into the root of this folder:
+   https://opensearch.org/downloads.html
+
+2. Place file as:
+   opensearch-3.1.0-linux-x64.tar.gz
+
+3. Run bootstrap:
+   ```bash
+   chmod +x Bootstrap.sh
+   ./Bootstrap.sh
