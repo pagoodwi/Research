@@ -1,2 +1,9 @@
 server.host: "0.0.0.0"
-opensearch.hosts: ["https://node-1:9200","https://node-2:9200","https://node-3:9200"]
+server.port: 5601
+
+# If the original Kibana was behind a reverse proxy using /kibana
+server.basePath: "/kibana"
+server.rewriteBasePath: true
+
+# Point to OpenSearch cluster
+opensearch.hosts: ["https://node-1:9200", "https://node-2:9200", "https://node-3:9200"]
