@@ -1,0 +1,8 @@
+cluster.name: opensearch-cluster
+node.name: node-3
+network.host: 0.0.0.0
+discovery.seed_hosts: ["node-1", "node-2", "node-3"]
+cluster.initial_cluster_manager_nodes: ["node-1", "node-2", "node-3"]
+node.roles: [ cluster_manager, data ]
+path.data: /mnt/pvc/opensearch/node3/data
+path.logs: /mnt/pvc/opensearch/node3/logs
